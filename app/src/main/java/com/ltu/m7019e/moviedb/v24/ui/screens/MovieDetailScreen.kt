@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ltu.m7019e.moviedb.v24.model.Movie
 import com.ltu.m7019e.moviedb.v24.utils.Constants
+import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
 import com.ltu.m7019e.moviedb.v24.viewmodel.SelectedMovieUiState
 
 @Composable
@@ -29,11 +32,18 @@ fun MovieDetailScreen(
     selectedMovieUiState: SelectedMovieUiState,
     modifier: Modifier = Modifier,
     onReviewButtonClicked: () -> Unit,
+    movieDBViewModel: MovieDBViewModel,
 ) {
+    val selectedMovieUiState = movieDBViewModel.selectedMovieUiState
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
             Column(Modifier.fillMaxWidth()) {
-                Box(Modifier.fillMaxWidth().padding(0.dp).background(Color.Black)) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp)
+                        .background(Color.Black)
+                ) {
                     AsyncImage(
                         model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + selectedMovieUiState.movie.backdropPath,
                         contentDescription = selectedMovieUiState.movie.title,
@@ -66,6 +76,18 @@ fun MovieDetailScreen(
                         .align(Alignment.CenterHorizontally),
                 ) {
                     Text("Reviews")
+                }
+                Row {
+                    Text(
+                        text = "Favorite",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Switch(checked = selectedMovieUiState.isFavorite, onCheckedChange = {
+                        if (it)
+                            movieDBViewModel.saveMovie(selectedMovieUiState.movie)
+                        else
+                            movieDBViewModel.deleteMovie(selectedMovieUiState.movie)
+                    })
                 }
             }
         }
