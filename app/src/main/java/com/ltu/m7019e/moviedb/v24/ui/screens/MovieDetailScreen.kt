@@ -1,5 +1,6 @@
 package com.ltu.m7019e.moviedb.v24.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,12 +32,12 @@ fun MovieDetailScreen(
 ) {
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
-            Column(Modifier.width(IntrinsicSize.Max)) {
-                Box(Modifier.fillMaxWidth().padding(0.dp)) {
+            Column(Modifier.fillMaxWidth()) {
+                Box(Modifier.fillMaxWidth().padding(0.dp).background(Color.Black)) {
                     AsyncImage(
                         model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + selectedMovieUiState.movie.backdropPath,
                         contentDescription = selectedMovieUiState.movie.title,
-                        modifier = modifier,
+                        modifier = modifier.align(Alignment.Center),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -84,12 +86,12 @@ fun MovieDetailScreen(
     }
 }
 
-@Composable
-fun MovieShowGenres(
-    movie: Movie
-) {
-    Text(text = movie.genres.map{it.name}.joinToString(", " ))
-}
+//@Composable
+//fun MovieShowGenres(
+//    movie: Movie
+//) {
+//    Text(text = movie.genres.map{it.name}.joinToString(", " ))
+//}
 
 @Composable
 fun MovieShowHTMLLink(

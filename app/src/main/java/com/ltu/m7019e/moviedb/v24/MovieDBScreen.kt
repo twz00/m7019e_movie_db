@@ -28,9 +28,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.ltu.m7019e.moviedb.v24.database.Movies
-import com.ltu.m7019e.moviedb.v24.model.Movie
+import com.ltu.m7019e.moviedb.v24.ui.screens.HomeScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieDetailScreen
+import com.ltu.m7019e.moviedb.v24.ui.screens.MovieGridScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieListScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieOpenToOtherApp
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieReviewScreen
@@ -105,15 +105,12 @@ fun MovieDBApp(
                 .padding(innerPadding)
         ) {
             composable(route = MovieDBScreen.List.name) {
-                MovieListScreen(
+                HomeScreen(
                     movieListUiState = movieDBViewModel.movieListUiState,
                     onMovieListItemClicked = {
                         movieDBViewModel.setSelectedMovie(it)
                         navController.navigate(MovieDBScreen.Detail.name)
-                    },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
+                    }
                 )
             }
             composable(route = MovieDBScreen.Detail.name) {
@@ -122,6 +119,8 @@ fun MovieDBApp(
                         selectedMovieUiState = movieDBViewModel.selectedMovieUiState,
                         modifier = Modifier,
                         onReviewButtonClicked = {
+                            movieDBViewModel.getSelectedMovieReviews()
+                            movieDBViewModel.getSelectedMovieVideos()
                             navController.navigate(MovieDBScreen.Review.name)
                         },
                     )
@@ -147,8 +146,18 @@ fun MovieDBApp(
             }
             composable(route = MovieDBScreen.Review.name) {
                 MovieReviewScreen(
-                    selectedMovieUiState = movieDBViewModel.selectedMovieUiState,
-                    modifier = Modifier,
+                    selectedMovieReviewsUiState = movieDBViewModel.selectedMovieReviewsUiState,
+                    selectedMovie = movieDBViewModel.movieSelected,
+                    selectedMovieVideosUiState = movieDBViewModel.selectedMovieVideosUiState,
+                    onYoutubeVideoListItemClicked = {
+                        val youtubeIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("vnd.youtube:" + it.key)
+                        )
+                        context.startActivity(youtubeIntent)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                        .padding(innerPadding),
                 )
             }
         }

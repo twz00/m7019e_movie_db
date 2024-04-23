@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    //implementation("androidx.compose.material3:material3-window-size-class")
 
     // Coil Image dependency
     implementation(libs.coil.compose)
@@ -77,6 +78,10 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+
+    // Video Player - https://www.youtube.com/watch?v=E_8LHkn4g-Q&ab_channel=AhmedGuedmioui
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
