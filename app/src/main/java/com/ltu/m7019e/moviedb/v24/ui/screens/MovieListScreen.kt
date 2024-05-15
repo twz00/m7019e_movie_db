@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -29,34 +30,44 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ltu.m7019e.moviedb.v24.model.Genre
 import com.ltu.m7019e.moviedb.v24.model.Movie
+import com.ltu.m7019e.moviedb.v24.network.ConnectionState
+import com.ltu.m7019e.moviedb.v24.network.connectivityState
 import com.ltu.m7019e.moviedb.v24.ui.theme.TheMovideDBV24Theme
 import com.ltu.m7019e.moviedb.v24.utils.Constants
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieListUiState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun HomeScreen(movieListUiState: MovieListUiState,
                onMovieListItemClicked: (Movie) -> Unit,
 ) {
-    BoxWithConstraints {
-        if (maxWidth > 400.dp) {
-            MovieGridScreen(
-                movieListUiState = movieListUiState,
-                onMovieListItemClicked = onMovieListItemClicked,
-                modifier = Modifier.padding(16.dp)
-            )
+    val connection by connectivityState()
+    val isConnected = connection === ConnectionState.Available
+
+    if (isConnected) {
+        BoxWithConstraints {
+            if (maxWidth > 400.dp) {
+                MovieGridScreen(
+                    movieListUiState = movieListUiState,
+                    onMovieListItemClicked = onMovieListItemClicked,
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                MovieListScreen(
+                    movieListUiState = movieListUiState,
+                    onMovieListItemClicked = onMovieListItemClicked,
+                    modifier = Modifier.padding(16.dp)
+                )
+                //            MovieGridScreen(
+                //                movieListUiState = movieListUiState,
+                //                onMovieListItemClicked = onMovieListItemClicked,
+                //                modifier = Modifier.padding(16.dp),
+                //            )
+            }
         }
-        else {
-            MovieListScreen(
-                movieListUiState = movieListUiState,
-                onMovieListItemClicked = onMovieListItemClicked,
-                modifier = Modifier.padding(16.dp)
-            )
-//            MovieGridScreen(
-//                movieListUiState = movieListUiState,
-//                onMovieListItemClicked = onMovieListItemClicked,
-//                modifier = Modifier.padding(16.dp),
-//            )
-        }
+    } else {
+        Text(text = "No Connection Test")
     }
 }
 @Composable
