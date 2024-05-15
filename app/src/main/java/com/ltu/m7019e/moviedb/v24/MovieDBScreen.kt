@@ -35,6 +35,7 @@ import com.ltu.m7019e.moviedb.v24.ui.screens.MovieListScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieOpenToOtherApp
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieReviewScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieShowHTMLLink
+import com.ltu.m7019e.moviedb.v24.utils.Constants
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
 
 enum class MovieDBScreen(@StringRes val title: Int) {
@@ -124,24 +125,24 @@ fun MovieDBApp(
                             navController.navigate(MovieDBScreen.Review.name)
                         },
                     )
-                    MovieShowHTMLLink(
-                        onHTMLLinkButtonClicked = {
-                            val urlIntent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://www.themoviedb.org/movie/587996-bajocero")
-                            )
-                            context.startActivity(urlIntent)
-                        }
-                    )
-                    MovieOpenToOtherApp(
-                        onOpenToOtherAppButtonClicked = {
-                            val urlIntent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://www.imdb.com/title/tt0108160/")
-                            )
-                            context.startActivity(urlIntent)
-                        }
-                    )
+//                    MovieShowHTMLLink(
+//                        onHTMLLinkButtonClicked = {
+//                            val urlIntent = Intent(
+//                                Intent.ACTION_VIEW,
+//                                Uri.parse("https://www.themoviedb.org/movie/587996-bajocero")
+//                            )
+//                            context.startActivity(urlIntent)
+//                        }
+//                    )
+//                    MovieOpenToOtherApp(
+//                        onOpenToOtherAppButtonClicked = {
+//                            val urlIntent = Intent(
+//                                Intent.ACTION_VIEW,
+//                                Uri.parse("https://www.imdb.com/title/tt0108160/")
+//                            )
+//                            context.startActivity(urlIntent)
+//                        }
+//                    )
                 }
             }
             composable(route = MovieDBScreen.Review.name) {
@@ -152,7 +153,7 @@ fun MovieDBApp(
                     onYoutubeVideoListItemClicked = {
                         val youtubeIntent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("vnd.youtube:" + it.key)
+                            Uri.parse(Constants.YOUTUBE_APP_URL + it.key)
                         )
                         context.startActivity(youtubeIntent)
                     },

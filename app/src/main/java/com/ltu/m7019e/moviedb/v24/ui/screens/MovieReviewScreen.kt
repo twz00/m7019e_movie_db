@@ -183,18 +183,6 @@ fun VideoPlayer(url: String) {
         MediaItem.fromUri(url)
     }
 
-    LaunchedEffect(mediaSource) {
-        exoPlayer.setMediaItem(mediaSource)
-        exoPlayer.prepare()
-    }
-
-    // Manage lifecycle events
-    DisposableEffect(Unit) {
-        onDispose {
-            exoPlayer.release()
-        }
-    }
-
     // Set MediaSource to ExoPlayer
     LaunchedEffect(mediaSource) {
         exoPlayer.setMediaItem(mediaSource)
