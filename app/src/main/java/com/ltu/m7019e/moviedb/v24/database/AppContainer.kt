@@ -4,6 +4,7 @@ import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.ltu.m7019e.moviedb.v24.network.MovieDBApiService
 import com.ltu.m7019e.moviedb.v24.utils.Constants
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.logging.HttpLoggingInterceptor
@@ -11,7 +12,7 @@ import retrofit2.Retrofit
 
 interface AppContainer {
     val moviesRepository: MoviesRepository
-    val savedMovieRepository: SavedMovieRepository
+    val cachedMoviesRepository: CachedMoviesRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -22,8 +23,10 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         return logging
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     val movieDBJson = Json {
         ignoreUnknownKeys = true
+        explicitNulls = false
     }
 
     private val retrofit: Retrofit = Retrofit.Builder()
@@ -46,7 +49,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         NetworkMoviesRepository(retrofitService)
     }
 
-    override val savedMovieRepository: SavedMovieRepository by lazy {
-        FavoriteMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
+    override val cachedMoviesRepository: CachedMoviesRepository by lazy {
+        CachedMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,69 +43,100 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun HomeScreen(movieListUiState: MovieListUiState,
                onMovieListItemClicked: (Movie) -> Unit,
 ) {
-    val connection by connectivityState()
-    val isConnected = connection === ConnectionState.Available
-
-    if (isConnected) {
-        BoxWithConstraints {
-            if (maxWidth > 400.dp) {
-                MovieGridScreen(
-                    movieListUiState = movieListUiState,
-                    onMovieListItemClicked = onMovieListItemClicked,
-                    modifier = Modifier.padding(16.dp)
-                )
-            } else {
-                MovieListScreen(
-                    movieListUiState = movieListUiState,
-                    onMovieListItemClicked = onMovieListItemClicked,
-                    modifier = Modifier.padding(16.dp)
-                )
-                //            MovieGridScreen(
-                //                movieListUiState = movieListUiState,
-                //                onMovieListItemClicked = onMovieListItemClicked,
-                //                modifier = Modifier.padding(16.dp),
-                //            )
-            }
+    BoxWithConstraints {
+        if (maxWidth > 400.dp) {
+            MovieGridScreen(
+                movieListUiState = movieListUiState,
+                onMovieListItemClicked = onMovieListItemClicked,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else {
+            MovieListScreen(
+                movieListUiState = movieListUiState,
+                onMovieListItemClicked = onMovieListItemClicked,
+                modifier = Modifier.padding(16.dp)
+            )
+            //            MovieGridScreen(
+            //                movieListUiState = movieListUiState,
+            //                onMovieListItemClicked = onMovieListItemClicked,
+            //                modifier = Modifier.padding(16.dp),
+            //            )
         }
-    } else {
-        Text(text = "No Connection Test")
     }
 }
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun MovieListScreen(movieListUiState: MovieListUiState,
                     onMovieListItemClicked: (Movie) -> Unit,
                     modifier: Modifier = Modifier
 ) {
+    val connection by connectivityState()
+    val isConnected = connection === ConnectionState.Available
+
     LazyColumn(modifier = modifier) {
+        if (isConnected) {
+            when(movieListUiState) {
+                is MovieListUiState.Success -> {
+                    items(movieListUiState.movies) { movie ->
+                        MovieListItemCard(
+                            movie = movie,
+                            onMovieListItemClicked,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
 
-        when(movieListUiState) {
-            is MovieListUiState.Success -> {
-                items(movieListUiState.movies) { movie ->
-                    MovieListItemCard(
-                        movie = movie,
-                        onMovieListItemClicked,
-                        modifier = Modifier.padding(8.dp)
-                    )
+                is MovieListUiState.Loading -> {
+                    item {
+                        Text(
+                            text = "Loading...",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                is MovieListUiState.Error -> {
+                    item {
+                        Text(
+                            text = "Error: Something went wrong!",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
             }
-
-            is MovieListUiState.Loading -> {
-                item {
-                    Text(
-                        text = "Loading...",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
+        }
+        else {
+            when(movieListUiState) {
+                is MovieListUiState.Success -> {
+                    items(movieListUiState.movies) { movie ->
+                        MovieListItemCard(
+                            movie = movie,
+                            onMovieListItemClicked,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
                 }
-            }
 
-            is MovieListUiState.Error -> {
-                item {
-                    Text(
-                        text = "Error: Something went wrong!",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                is MovieListUiState.Loading -> {
+                    item {
+                        Text(
+                            text = "Loading...",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                is MovieListUiState.Error -> {
+                    item {
+                        Text(
+                            text = "No Connection!",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
             }
         }
@@ -157,11 +189,14 @@ fun MovieListItemCard(movie: Movie,
     }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun MovieGridScreen(movieListUiState: MovieListUiState,
                     onMovieListItemClicked: (Movie) -> Unit,
                     modifier: Modifier = Modifier
 ) {
+    val connection by connectivityState()
+    val isConnected = connection === ConnectionState.Available
     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = modifier) {
         when(movieListUiState) {
             is MovieListUiState.Success -> {
@@ -186,11 +221,20 @@ fun MovieGridScreen(movieListUiState: MovieListUiState,
 
             is MovieListUiState.Error -> {
                 item {
-                    Text(
-                        text = "Error: Something went wrong!",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    if (!isConnected) {
+                        Text(
+                            text = "No Connection!",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    else {
+                        Text(
+                            text = "Error: Something went wrong!",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
             }
         }

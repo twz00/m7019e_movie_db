@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ltu.m7019e.moviedb.v24.database.CachedMovieType
+import com.ltu.m7019e.moviedb.v24.network.ConnectionState
+import com.ltu.m7019e.moviedb.v24.network.connectivityState
 import com.ltu.m7019e.moviedb.v24.ui.screens.HomeScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieDetailScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieGridScreen
@@ -43,6 +47,7 @@ import com.ltu.m7019e.moviedb.v24.ui.screens.MovieReviewScreen
 import com.ltu.m7019e.moviedb.v24.ui.screens.MovieShowHTMLLink
 import com.ltu.m7019e.moviedb.v24.utils.Constants
 import com.ltu.m7019e.moviedb.v24.viewmodel.MovieDBViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 enum class MovieDBScreen(@StringRes val title: Int) {
     List(title = R.string.app_name),
@@ -108,7 +113,7 @@ fun MovieDBAppBar(
                 DropdownMenuItem(
                     onClick = {
                         // Set the selected movie list to popular
-                        movieDBViewModel.getSavedMovies()
+                        movieDBViewModel.getFavouriteMovies()
                         // Set the menu expanded state to false
                         menuExpanded = false
 
@@ -133,6 +138,7 @@ fun MovieDBAppBar(
     )
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun MovieDBApp(
     navController: NavHostController = rememberNavController()
@@ -167,6 +173,17 @@ fun MovieDBApp(
                 .padding(innerPadding)
         ) {
             composable(route = MovieDBScreen.List.name) {
+                val connection by connectivityState()
+                val isConnected = connection === ConnectionState.Available
+
+                LaunchedEffect(connection) {
+                    if (movieDBViewModel.selectedMovieType == CachedMovieType.TOP_RATED) {
+                        movieDBViewModel.getTopRatedMovies()
+                    }
+                    else {
+                        movieDBViewModel.getPopularMovies()
+                    }
+                }
                 HomeScreen(
                     movieListUiState = movieDBViewModel.movieListUiState,
                     onMovieListItemClicked = {

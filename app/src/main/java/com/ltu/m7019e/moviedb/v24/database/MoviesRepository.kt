@@ -13,6 +13,19 @@ interface MoviesRepository {
     suspend fun getSelectedMovieVideos(id: Long): VideoResponse
 }
 
+interface CachedMovieRepository {
+    suspend fun getPopularMovies(): List<Movie>
+    suspend fun getTopRatedMovies(): List<Movie>
+    suspend fun getMovie(id: Long): Movie?
+    suspend fun updateCache(type: CachedMovieType,movies: List<Movie>)
+
+    suspend fun getSavedFavouriteMovies(): List<Movie>
+
+    suspend fun saveFavouriteMovie(movie: Movie)
+
+    suspend fun deleteSavedFavouriteMovie(movie: Movie)
+}
+
 class NetworkMoviesRepository(private val apiService: MovieDBApiService) : MoviesRepository {
     override suspend fun getPopularMovies(): MovieResponse {
         return apiService.getPopularMovies()
@@ -31,31 +44,50 @@ class NetworkMoviesRepository(private val apiService: MovieDBApiService) : Movie
     }
 }
 
-interface SavedMovieRepository {
-    suspend fun getSavedMovies(): List<Movie>
-
-    suspend fun insertMovie(movie: Movie)
-
-    suspend fun getMovie(id: Long): Movie
-
-    suspend fun deleteMovie(movie: Movie)
-
-}
-
-class FavoriteMoviesRepository(private val movieDao: MovieDao) : SavedMovieRepository {
-    override suspend fun getSavedMovies(): List<Movie> {
-        return movieDao.getFavoriteMovies()
+class CachedMoviesRepository(private val movieDao: MovieDao) : CachedMovieRepository {
+    override suspend fun getPopularMovies(): List<Movie> {
+        return if (currentCachedMovieType == CachedMovieType.POPULAR) {
+            movieDao.getCachedMovies()
+        } else {
+            return emptyList()
+        }
     }
 
-    override suspend fun insertMovie(movie: Movie) {
-        movieDao.insertFavoriteMovie(movie)
+    override suspend fun getTopRatedMovies(): List<Movie> {
+        return if (currentCachedMovieType == CachedMovieType.TOP_RATED) {
+            movieDao.getCachedMovies()
+        } else {
+            return emptyList()
+        }
     }
 
-    override suspend fun getMovie(id: Long): Movie {
+    override suspend fun getMovie(id: Long): Movie? {
         return movieDao.getMovie(id)
     }
 
-    override suspend fun deleteMovie(movie: Movie) {
+    override suspend fun updateCache(type: CachedMovieType, movies: List<Movie>) {
+        currentCachedMovieType = type
+        movieDao.deleteAllNotFavouriteCachedMovies()
+        movieDao.insertCachedMovies(movies)
+    }
+
+    override suspend fun getSavedFavouriteMovies(): List<Movie> {
+        return movieDao.getFavoriteMovies()
+    }
+
+    override suspend fun saveFavouriteMovie(movie: Movie) {
+        movieDao.insertFavoriteMovie(movie.id)
+    }
+
+    override suspend fun deleteSavedFavouriteMovie(movie: Movie) {
         movieDao.deleteFavoriteMovie(movie.id)
     }
+
+    companion object {
+        private var currentCachedMovieType: CachedMovieType = CachedMovieType.NONE
+    }
+}
+
+enum class CachedMovieType {
+    NONE, POPULAR, TOP_RATED
 }

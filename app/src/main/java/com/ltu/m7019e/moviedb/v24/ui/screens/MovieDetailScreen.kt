@@ -84,9 +84,9 @@ fun MovieDetailScreen(
                     )
                     Switch(checked = selectedMovieUiState.isFavorite, onCheckedChange = {
                         if (it)
-                            movieDBViewModel.saveMovie(selectedMovieUiState.movie)
+                            movieDBViewModel.saveFavouriteMovie(selectedMovieUiState.movie)
                         else
-                            movieDBViewModel.deleteMovie(selectedMovieUiState.movie)
+                            movieDBViewModel.deleteSavedFavouriteMovie(selectedMovieUiState.movie)
                     })
                 }
             }
