@@ -121,21 +121,21 @@ fun MovieReviewScreen(
                             mutableStateOf(false)
                         }
                         Card(
-                            onClick = {
+                            /*onClick = {
                                 if (video.site == "YouTube") {
                                     onYoutubeVideoListItemClicked(video)
                                 } else {
                                     videoPlayerVisible.value = true
                                 }
-                            },
+                            },*/
                             modifier = Modifier
                                 .padding(16.dp)
                                 .width(250.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.Black),
                         ) {
-                            if (videoPlayerVisible.value)
+                            //if (videoPlayerVisible.value)
                                 VideoPlayer(url = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-                            else {
+                            /*else {
                                 Column (modifier = Modifier.fillMaxSize(),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center) {
@@ -148,7 +148,7 @@ fun MovieReviewScreen(
                                     )
                                 }
 
-                            }
+                            }*/
                         }
                     }
                 }
